@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <link rel="stylesheet" href="chatbot.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClinicPing — Giảm 40% tỷ lệ hủy lịch cho phòng khám</title>
+  <meta name="description" content="Hệ thống nhắc lịch tự động qua Zalo/SMS giúp phòng khám giảm no-show, lấp chỗ trống, tăng doanh thu. Dùng thử miễn phí 2 tuần." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',500:'#2563EB',600:'#1D4ED8',700:'#1E40AF',800:'#1E3A8A',900:'#172554' },
+            accent: { 50:'#F0FDF4',100:'#DCFCE7',400:'#4ADE80',500:'#22C55E',600:'#16A34A' },
+            surface: { 50:'#F8FAFC',100:'#F1F5F9',200:'#E2E8F0' },
+            ink: { 900:'#0F172A',800:'#1E293B',700:'#334155',500:'#64748B',400:'#94A3B8',300:'#CBD5E1' }
+          },
+          fontFamily: {
+            'display': ['"Be Vietnam Pro"','system-ui','sans-serif'],
+            'body': ['"DM Sans"','"Be Vietnam Pro"','system-ui','sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{font-family:'DM Sans','Be Vietnam Pro',system-ui,sans-serif}
+    body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:#F1F5F9}
+    ::-webkit-scrollbar-thumb{background:#94A3B8;border-radius:99px}
+    ::-webkit-scrollbar-thumb:hover{background:#64748B}
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .stagger>.reveal:nth-child(1){transition-delay:0ms}
+    .stagger>.reveal:nth-child(2){transition-delay:80ms}
+    .stagger>.reveal:nth-child(3){transition-delay:160ms}
+    .stagger>.reveal:nth-child(4){transition-delay:240ms}
+    .stagger>.reveal:nth-child(5){transition-delay:320ms}
+    .stagger>.reveal:nth-child(6){transition-delay:400ms}
+    .btn-primary{position:relative;overflow:hidden;transition:all .3s cubic-bezier(.22,1,.36,1)}
+    .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .3s}
+    .btn-primary:hover::after{opacity:1}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px -6px rgba(37,99,235,.45)}
+    .btn-primary:active{transform:translateY(0)}
+    .btn-ghost{transition:all .25s cubic-bezier(.22,1,.36,1)}
+    .btn-ghost:hover{background:rgba(37,99,235,.06)}
+    .card-lift{transition:all .35s cubic-bezier(.22,1,.36,1)}
+    .card-lift:hover{transform:translateY(-6px);box-shadow:0 20px 50px -12px rgba(0,0,0,.08)}
+    .pricing-highlight{position:relative}
+    .pricing-highlight::before{content:'';position:absolute;inset:-2px;border-radius:20px;background:linear-gradient(135deg,#2563EB,#22C55E,#2563EB);z-index:-1;animation:shimmer 3s ease-in-out infinite}
+    @keyframes shimmer{0%,100%{opacity:.7}50%{opacity:1}}
+    .dot-pattern{background-image:radial-gradient(circle,#2563EB 1px,transparent 1px);background-size:24px 24px;opacity:.04}
+    .step-line{position:relative}
+    .step-line::after{content:'';position:absolute;top:50%;right:-32px;width:32px;height:2px;background:linear-gradient(to right,#BFDBFE,transparent)}
+    @media(max-width:768px){.step-line::after{display:none}}
+    .faq-answer{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.22,1,.36,1),padding .4s cubic-bezier(.22,1,.36,1)}
+    .faq-item.open .faq-answer{max-height:200px;padding-top:12px}
+    .faq-item.open .faq-chevron{transform:rotate(180deg)}
+    .faq-chevron{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+    .nav-scrolled{background:rgba(255,255,255,.88)!important;backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid rgba(226,232,240,.6);box-shadow:0 1px 8px rgba(0,0,0,.04)}
+    @keyframes ping-dot{0%{transform:scale(1);opacity:1}75%{transform:scale(2.2);opacity:0}100%{transform:scale(2.2);opacity:0}}
+    .ping-anim{animation:ping-dot 2s cubic-bezier(0,0,.2,1) infinite}
+    .dashboard-mockup{background:white;border-radius:16px;box-shadow:0 0 0 1px rgba(0,0,0,.03),0 2px 4px rgba(0,0,0,.02),0 12px 40px rgba(0,0,0,.06),0 40px 80px -20px rgba(37,99,235,.08)}
+    .mobile-menu{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1)}
+    .mobile-menu.open{max-height:400px}
+    .stat-number{background:linear-gradient(135deg,#93C5FD,#60A5FA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  </style>
+</head>
+<body class="bg-white text-ink-800 font-body antialiased">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- NAVBAR                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16 sm:h-18">
+      <a href="#" class="flex items-center gap-2">
+        <div class="relative w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-lg bg-brand-400 ping-anim"></div>
+          <svg class="w-4 h-4 text-white relative z-10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </div>
+        <span class="font-display font-bold text-lg text-ink-900 tracking-tight">Clinic<span class="text-brand-500">Ping</span></span>
+      </a>
+      <div class="hidden md:flex items-center gap-1">
+        <a href="#features" class="px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:text-brand-600 hover:bg-brand-50 transition-colors">Tính năng</a>
+        <a href="#how-it-works" class="px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:text-brand-600 hover:bg-brand-50 transition-colors">Cách hoạt động</a>
+        <a href="#pricing" class="px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:text-brand-600 hover:bg-brand-50 transition-colors">Bảng giá</a>
+        <a href="#faq" class="px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:text-brand-600 hover:bg-brand-50 transition-colors">FAQ</a>
+        <a href="#contact" class="px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:text-brand-600 hover:bg-brand-50 transition-colors">Liên hệ</a>
+      </div>
+      <div class="hidden md:flex items-center gap-3">
+        <a href="#demo" class="btn-ghost px-4 py-2 rounded-xl text-sm font-semibold text-brand-600">Xem demo</a>
+        <a href="#contact" class="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold shadow-lg shadow-brand-500/20">
+          Dùng thử miễn phí
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+      </div>
+      <button id="mobile-toggle" class="md:hidden p-2 rounded-lg hover:bg-surface-100 transition-colors" aria-label="Menu">
+        <svg class="w-5 h-5 text-ink-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden">
+      <div class="pb-4 pt-2 space-y-1 border-t border-surface-200">
+        <a href="#features" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-ink-700 hover:bg-surface-100">Tính năng</a>
+        <a href="#how-it-works" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-ink-700 hover:bg-surface-100">Cách hoạt động</a>
+        <a href="#pricing" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-ink-700 hover:bg-surface-100">Bảng giá</a>
+        <a href="#faq" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-ink-700 hover:bg-surface-100">FAQ</a>
+        <a href="#contact" class="block px-3 py-2.5 rounded-lg text-sm font-medium text-ink-700 hover:bg-surface-100">Liên hệ</a>
+        <div class="pt-2"><a href="#contact" class="btn-primary block text-center px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold">Dùng thử miễn phí</a></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- HERO                                           -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="relative pt-28 sm:pt-36 pb-16 sm:pb-24 overflow-hidden">
+  <div class="absolute inset-0 dot-pattern"></div>
+  <div class="absolute top-20 -right-40 w-[600px] h-[600px] rounded-full bg-brand-100/40 blur-3xl"></div>
+  <div class="absolute -bottom-20 -left-32 w-[400px] h-[400px] rounded-full bg-accent-100/30 blur-3xl"></div>
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <!-- Copy -->
+      <div class="text-center lg:text-left">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-50 border border-accent-100 mb-6">
+          <span class="w-2 h-2 rounded-full bg-accent-500 animate-pulse"></span>
+          <span class="text-xs font-semibold text-accent-600 tracking-wide">Dùng thử miễn phí 14 ngày</span>
+        </div>
+        <h1 class="reveal font-display font-extrabold text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.12] text-ink-900 tracking-tight">
+          Giảm <span class="text-brand-500">40%</span> tỷ lệ<br class="hidden sm:block" /> hủy lịch hẹn cho<br class="hidden sm:block" /> phòng khám
+        </h1>
+        <p class="reveal mt-5 sm:mt-6 text-base sm:text-lg leading-relaxed text-ink-500 max-w-lg mx-auto lg:mx-0">
+          Hệ thống tự động nhắc lịch qua Zalo &amp; SMS, xác nhận chỉ bằng 1 tin nhắn, và lấp chỗ trống ngay khi có người hủy. Setup chỉ 15 phút.
+        </p>
+        <div class="reveal mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+          <a href="#contact" class="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-brand-500 text-white font-semibold text-base shadow-xl shadow-brand-500/20">
+            Dùng thử miễn phí
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </a>
+          <a href="#demo" class="btn-ghost w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl text-brand-600 font-semibold text-base border border-brand-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Xem demo
+          </a>
+        </div>
+        <div class="reveal mt-10 flex items-center gap-6 justify-center lg:justify-start text-sm text-ink-400">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-accent-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Không cần cài app
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-accent-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Dùng Google Sheets
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-accent-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Setup 15 phút
+          </div>
+        </div>
+      </div>
+      <!-- Dashboard Mockup -->
+      <div class="reveal">
+        <div class="dashboard-mockup p-1 relative">
+          <div class="flex items-center gap-1.5 px-4 py-3 border-b border-surface-100">
+            <div class="w-2.5 h-2.5 rounded-full bg-red-300"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-yellow-300"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-green-300"></div>
+            <div class="flex-1 mx-8"><div class="max-w-xs mx-auto h-5 rounded-md bg-surface-100 flex items-center justify-center"><span class="text-[10px] text-ink-400 font-mono">clinicping.vn/dashboard</span></div></div>
+          </div>
+          <div class="p-4 sm:p-5 space-y-4">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="rounded-xl bg-brand-50 p-3"><div class="text-xs text-ink-500 mb-1">Hôm nay</div><div class="text-xl font-bold text-brand-600 font-display">12</div><div class="text-[10px] text-ink-400">lịch hẹn</div></div>
+              <div class="rounded-xl bg-accent-50 p-3"><div class="text-xs text-ink-500 mb-1">Đã xác nhận</div><div class="text-xl font-bold text-accent-600 font-display">10</div><div class="text-[10px] text-accent-600">83%</div></div>
+              <div class="rounded-xl bg-orange-50 p-3"><div class="text-xs text-ink-500 mb-1">Chờ XN</div><div class="text-xl font-bold text-orange-500 font-display">2</div><div class="text-[10px] text-ink-400">đang gửi</div></div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 p-2.5 rounded-xl bg-surface-50 border border-surface-100">
+                <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-xs font-bold text-brand-600">NM</div>
+                <div class="flex-1 min-w-0"><div class="text-sm font-medium text-ink-800 truncate">Nguyễn Thị Mai</div><div class="text-xs text-ink-400">09:00 — Tẩy trắng răng</div></div>
+                <span class="px-2 py-0.5 rounded-full bg-accent-100 text-accent-700 text-[10px] font-semibold">Đã XN</span>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-xl bg-surface-50 border border-surface-100">
+                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-xs font-bold text-purple-600">TH</div>
+                <div class="flex-1 min-w-0"><div class="text-sm font-medium text-ink-800 truncate">Trần Văn Hùng</div><div class="text-xs text-ink-400">10:30 — Cạo vôi răng</div></div>
+                <span class="px-2 py-0.5 rounded-full bg-accent-100 text-accent-700 text-[10px] font-semibold">Đã XN</span>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-xl bg-surface-50 border border-surface-100">
+                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600">PL</div>
+                <div class="flex-1 min-w-0"><div class="text-sm font-medium text-ink-800 truncate">Phạm Thùy Linh</div><div class="text-xs text-ink-400">14:00 — Chăm sóc da</div></div>
+                <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-[10px] font-semibold">Chờ XN</span>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-xl border-2 border-dashed border-accent-300 bg-accent-50/50">
+                <div class="w-8 h-8 rounded-full bg-accent-100 flex items-center justify-center"><svg class="w-4 h-4 text-accent-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></div>
+                <div class="flex-1"><div class="text-sm font-medium text-accent-700">Slot trống — đang mời từ waitlist</div><div class="text-xs text-accent-500">15:30 — Đã gửi tin cho 1 bệnh nhân</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- STATS BAR                                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="relative py-8 bg-ink-900">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center stagger">
+      <div class="reveal"><div class="stat-number text-3xl sm:text-4xl font-display font-extrabold">40%</div><div class="text-sm text-ink-400 mt-1">giảm tỷ lệ hủy lịch</div></div>
+      <div class="reveal"><div class="text-3xl sm:text-4xl font-display font-extrabold text-white">15<span class="text-brand-400 text-xl">phút</span></div><div class="text-sm text-ink-400 mt-1">setup hoàn tất</div></div>
+      <div class="reveal"><div class="text-3xl sm:text-4xl font-display font-extrabold text-white">24h</div><div class="text-sm text-ink-400 mt-1">nhắc lịch tự động</div></div>
+      <div class="reveal"><div class="text-3xl sm:text-4xl font-display font-extrabold text-white">10x</div><div class="text-sm text-ink-400 mt-1">ROI trung bình</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PROBLEM                                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28 bg-surface-50" id="problem">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 mb-4"><span class="text-xs font-semibold text-red-500">Vấn đề phổ biến</span></div>
+      <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-ink-900 tracking-tight">Phòng khám của bạn đang<br/>gặp vấn đề này?</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 stagger">
+      <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+        <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <h3 class="font-display font-bold text-ink-900 mb-2">Bệnh nhân quên lịch</h3>
+        <p class="text-sm text-ink-500 leading-relaxed">15–20% bệnh nhân quên hoặc nhầm ngày hẹn, gây lãng phí khung giờ.</p>
+      </div>
+      <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+        <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>
+        <h3 class="font-display font-bold text-ink-900 mb-2">Hủy lịch phút chót</h3>
+        <p class="text-sm text-ink-500 leading-relaxed">Bệnh nhân hủy sát giờ — không kịp tìm người thay, slot bỏ trống.</p>
+      </div>
+      <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+        <div class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg></div>
+        <h3 class="font-display font-bold text-ink-900 mb-2">Lễ tân gọi từng người</h3>
+        <p class="text-sm text-ink-500 leading-relaxed">Mỗi ngày mất 1–2 tiếng chỉ để gọi nhắc lịch thủ công.</p>
+      </div>
+      <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-50 flex items-center justify-center mb-4"><svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <h3 class="font-display font-bold text-ink-900 mb-2">Mất doanh thu</h3>
+        <p class="text-sm text-ink-500 leading-relaxed">Mỗi slot trống = 300K–2M VND mất đi. Tích lũy 15–20 triệu/tháng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FEATURES                                       -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28" id="features">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 mb-4"><span class="text-xs font-semibold text-brand-600">Giải pháp</span></div>
+      <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-ink-900 tracking-tight">ClinicPing giải quyết<br/>như thế nào?</h2>
+      <p class="reveal mt-4 text-ink-500 max-w-lg mx-auto">Tự động hóa toàn bộ quy trình nhắc lịch — bạn không cần làm gì cả.</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-5 stagger">
+      <!-- Feature 1: Auto Reminder -->
+      <div class="reveal card-lift rounded-2xl bg-gradient-to-br from-brand-50 to-white border border-brand-100 p-7 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 shrink-0 rounded-2xl bg-brand-500 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg></div>
+          <div><h3 class="font-display font-bold text-lg text-ink-900 mb-2">Tự động nhắc lịch trước 24h</h3><p class="text-sm text-ink-500 leading-relaxed">Gửi tin nhắn nhắc qua Zalo hoặc SMS tự động. Bệnh nhân chỉ cần trả lời "1" để xác nhận.</p></div>
+        </div>
+        <div class="mt-5 ml-16 bg-white rounded-xl border border-surface-200 p-3 max-w-xs shadow-sm">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg></div>
+            <span class="text-[11px] font-semibold text-ink-700">ClinicPing</span>
+            <span class="text-[10px] text-ink-400 ml-auto">14:00</span>
+          </div>
+          <p class="text-xs text-ink-600 leading-relaxed">Nhắc lịch: Bạn có hẹn <b>Tẩy trắng răng</b> ngày mai lúc <b>09:00</b>. Trả lời "1" = đến, "2" = hủy.</p>
+        </div>
+      </div>
+      <!-- Feature 2: Confirm -->
+      <div class="reveal card-lift rounded-2xl bg-gradient-to-br from-accent-50 to-white border border-accent-100 p-7 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 shrink-0 rounded-2xl bg-accent-500 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          <div><h3 class="font-display font-bold text-lg text-ink-900 mb-2">Xác nhận / hủy bằng 1 tin nhắn</h3><p class="text-sm text-ink-500 leading-relaxed">Bệnh nhân trả lời "1" hoặc "2" — hệ thống tự cập nhật trạng thái. Không cần gọi điện.</p></div>
+        </div>
+        <div class="mt-5 ml-16 flex items-center gap-2">
+          <div class="px-3 py-2 rounded-xl bg-accent-100 border border-accent-200"><span class="text-sm font-semibold text-accent-700">✅ "1" — Tôi sẽ đến</span></div>
+          <div class="px-3 py-2 rounded-xl bg-red-50 border border-red-100"><span class="text-sm font-semibold text-red-500">❌ "2" — Hủy</span></div>
+        </div>
+      </div>
+      <!-- Feature 3: Waitlist -->
+      <div class="reveal card-lift rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-100 p-7 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 shrink-0 rounded-2xl bg-purple-500 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"/></svg></div>
+          <div><h3 class="font-display font-bold text-lg text-ink-900 mb-2">Tự động lấp chỗ trống</h3><p class="text-sm text-ink-500 leading-relaxed">Khi có người hủy, hệ thống tự mời bệnh nhân trong danh sách chờ vào thay — trong vài giây.</p></div>
+        </div>
+        <div class="mt-5 ml-16 flex items-center gap-2 text-xs text-ink-500">
+          <span class="px-2 py-1 rounded-lg bg-red-50 text-red-500 font-medium line-through">15:30 — Trống</span>
+          <svg class="w-4 h-4 text-ink-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          <span class="px-2 py-1 rounded-lg bg-accent-100 text-accent-700 font-medium">15:30 — Lê Thanh Tùng ✓</span>
+        </div>
+      </div>
+      <!-- Feature 4: Dashboard -->
+      <div class="reveal card-lift rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-100 p-7 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 shrink-0 rounded-2xl bg-amber-500 flex items-center justify-center"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div>
+          <div><h3 class="font-display font-bold text-lg text-ink-900 mb-2">Dashboard theo dõi đơn giản</h3><p class="text-sm text-ink-500 leading-relaxed">Xem lịch hôm nay, tỷ lệ xác nhận, no-show rate — tất cả trên Google Sheets quen thuộc.</p></div>
+        </div>
+        <div class="mt-5 ml-16 grid grid-cols-3 gap-2 max-w-xs">
+          <div class="text-center p-2 rounded-lg bg-white border border-surface-200"><div class="text-lg font-bold text-brand-600 font-display">92%</div><div class="text-[10px] text-ink-400">Xác nhận</div></div>
+          <div class="text-center p-2 rounded-lg bg-white border border-surface-200"><div class="text-lg font-bold text-accent-600 font-display">5%</div><div class="text-[10px] text-ink-400">No-show</div></div>
+          <div class="text-center p-2 rounded-lg bg-white border border-surface-200"><div class="text-lg font-bold text-purple-600 font-display">8</div><div class="text-[10px] text-ink-400">Slot lấp</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28 bg-ink-900 relative overflow-hidden" id="how-it-works">
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-brand-600/10 blur-3xl"></div>
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 mb-4"><span class="text-xs font-semibold text-brand-300">Đơn giản</span></div>
+      <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">Hoạt động như thế nào?</h2>
+      <p class="reveal mt-4 text-ink-400">Chỉ 4 bước — mọi thứ chạy tự động sau khi setup.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger">
+      <div class="reveal step-line text-center lg:text-left">
+        <div class="w-14 h-14 mx-auto lg:mx-0 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center mb-5"><span class="font-display font-extrabold text-2xl text-brand-400">1</span></div>
+        <h3 class="font-display font-bold text-white text-lg mb-2">Bệnh nhân đặt lịch</h3>
+        <p class="text-sm text-ink-400 leading-relaxed">Qua link đặt lịch, Zalo, hoặc nhân viên nhập trực tiếp.</p>
+      </div>
+      <div class="reveal step-line text-center lg:text-left">
+        <div class="w-14 h-14 mx-auto lg:mx-0 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center mb-5"><span class="font-display font-extrabold text-2xl text-brand-400">2</span></div>
+        <h3 class="font-display font-bold text-white text-lg mb-2">Gửi xác nhận tự động</h3>
+        <p class="text-sm text-ink-400 leading-relaxed">Tin nhắn xác nhận gửi ngay qua Zalo/SMS sau khi đặt.</p>
+      </div>
+      <div class="reveal step-line text-center lg:text-left">
+        <div class="w-14 h-14 mx-auto lg:mx-0 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center mb-5"><span class="font-display font-extrabold text-2xl text-brand-400">3</span></div>
+        <h3 class="font-display font-bold text-white text-lg mb-2">Nhắc lịch trước 24h</h3>
+        <p class="text-sm text-ink-400 leading-relaxed">Hệ thống tự gửi nhắc. Bệnh nhân trả lời "1" xác nhận hoặc "2" hủy.</p>
+      </div>
+      <div class="reveal text-center lg:text-left">
+        <div class="w-14 h-14 mx-auto lg:mx-0 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center mb-5"><span class="font-display font-extrabold text-2xl text-accent-400">4</span></div>
+        <h3 class="font-display font-bold text-white text-lg mb-2">Hủy → Tự lấp slot</h3>
+        <p class="text-sm text-ink-400 leading-relaxed">Nếu ai đó hủy, hệ thống mời người trong waitlist vào ngay.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PRICING                                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28" id="pricing">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 mb-4"><span class="text-xs font-semibold text-brand-600">Bảng giá</span></div>
+      <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-ink-900 tracking-tight">Giá rẻ hơn 1 bệnh nhân no-show</h2>
+      <p class="reveal mt-4 text-ink-500">Chỉ cần giữ được 1 bệnh nhân/tháng là đã hoàn vốn.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5 lg:gap-6 max-w-4xl mx-auto stagger">
+      <!-- Starter -->
+      <div class="reveal card-lift rounded-2xl bg-white border border-surface-200 p-7">
+        <div class="text-sm font-semibold text-ink-500 mb-1">Starter</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="font-display font-extrabold text-4xl text-ink-900">299K</span><span class="text-sm text-ink-400">VND/tháng</span></div>
+        <p class="text-sm text-ink-400 mb-6">Cho phòng khám nhỏ mới bắt đầu</p>
+        <a href="#contact" class="btn-ghost block text-center py-3 rounded-xl border border-brand-200 text-brand-600 font-semibold text-sm mb-6">Dùng thử miễn phí</a>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Tối đa 100 lịch hẹn/tháng</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Nhắc lịch Zalo/SMS</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Dashboard Google Sheets</li>
+          <li class="flex items-start gap-2 text-sm text-ink-300"><svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6"/></svg>Waitlist auto-fill</li>
+        </ul>
+      </div>
+      <!-- Growth -->
+      <div class="reveal card-lift pricing-highlight rounded-[18px] bg-white p-7 relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-500 text-white text-xs font-bold">Phổ biến nhất</div>
+        <div class="text-sm font-semibold text-brand-600 mb-1">Growth</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="font-display font-extrabold text-4xl text-ink-900">599K</span><span class="text-sm text-ink-400">VND/tháng</span></div>
+        <p class="text-sm text-ink-400 mb-6">Cho phòng khám muốn tối ưu</p>
+        <a href="#contact" class="btn-primary block text-center py-3 rounded-xl bg-brand-500 text-white font-semibold text-sm mb-6 shadow-lg shadow-brand-500/20">Dùng thử miễn phí</a>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Tối đa 300 lịch hẹn/tháng</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Nhắc lịch Zalo/SMS</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg><strong>Waitlist auto-fill</strong></li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Theo dõi no-show rate</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Hỗ trợ qua Zalo</li>
+        </ul>
+      </div>
+      <!-- Pro -->
+      <div class="reveal card-lift rounded-2xl bg-white border border-surface-200 p-7">
+        <div class="text-sm font-semibold text-ink-500 mb-1">Pro</div>
+        <div class="flex items-baseline gap-1 mb-1"><span class="font-display font-extrabold text-4xl text-ink-900">999K</span><span class="text-sm text-ink-400">VND/tháng</span></div>
+        <p class="text-sm text-ink-400 mb-6">Không giới hạn, hỗ trợ ưu tiên</p>
+        <a href="#contact" class="btn-ghost block text-center py-3 rounded-xl border border-brand-200 text-brand-600 font-semibold text-sm mb-6">Dùng thử miễn phí</a>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg><strong>Không giới hạn</strong> lịch hẹn</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Tất cả tính năng Growth</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Báo cáo phân tích hàng tháng</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Hỗ trợ ưu tiên 24/7</li>
+          <li class="flex items-start gap-2 text-sm text-ink-600"><svg class="w-5 h-5 shrink-0 text-accent-500 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Tùy chỉnh tin nhắn</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- TESTIMONIAL + DEMO                             -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28 bg-surface-50" id="demo">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div class="reveal order-2 lg:order-1">
+        <div class="aspect-video rounded-2xl bg-ink-900 flex items-center justify-center relative overflow-hidden group cursor-pointer shadow-2xl">
+          <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-purple-600/20"></div>
+          <div class="relative z-10 w-20 h-20 rounded-full bg-white/95 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <svg class="w-8 h-8 text-brand-500 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="absolute bottom-4 left-4 z-10"><span class="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-sm">2:00 phút demo</span></div>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2 space-y-5">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 mb-2"><span class="text-xs font-semibold text-brand-600">Khách hàng nói gì</span></div>
+        <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+          <div class="flex gap-1 mb-3"><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+          <p class="text-sm text-ink-600 leading-relaxed italic mb-4">"Trước đây lễ tân tôi phải gọi 30–40 bệnh nhân mỗi ngày. Giờ ClinicPing gửi nhắc tự động, tỷ lệ no-show giảm rõ rệt. Tiết kiệm được ít nhất 2 tiếng/ngày."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-sm font-bold text-brand-600">BS</div>
+            <div><div class="text-sm font-semibold text-ink-800">BS. Nguyễn Hoàng Nam</div><div class="text-xs text-ink-400">Phòng khám Nha khoa Ánh Dương, Cầu Giấy</div></div>
+          </div>
+        </div>
+        <div class="reveal card-lift bg-white rounded-2xl p-6 border border-surface-200">
+          <div class="flex gap-1 mb-3"><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+          <p class="text-sm text-ink-600 leading-relaxed italic mb-4">"Setup nhanh, không cần cài đặt phức tạp. Khách hàng của spa tôi nhận được nhắc lịch rất chuyên nghiệp. Tháng đầu đã giảm 35% lượt hủy."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600">TL</div>
+            <div><div class="text-sm font-semibold text-ink-800">Chị Trần Thùy Linh</div><div class="text-xs text-ink-400">Glow Skin Spa, Hai Bà Trưng</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FAQ                                            -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28" id="faq">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-14">
+      <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 mb-4"><span class="text-xs font-semibold text-brand-600">FAQ</span></div>
+      <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-ink-900 tracking-tight">Câu hỏi thường gặp</h2>
+    </div>
+    <div class="space-y-3 stagger">
+      <div class="reveal faq-item bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <button class="faq-toggle w-full flex items-center justify-between p-5 text-left"><span class="font-display font-semibold text-ink-900 pr-4">Có cần cài app không?</span><svg class="faq-chevron w-5 h-5 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="faq-answer px-5 pb-5"><p class="text-sm text-ink-500 leading-relaxed">Không. ClinicPing hoạt động hoàn toàn trên nền tảng web. Bạn chỉ cần mở Google Sheets (giống Excel online) để xem lịch. Bệnh nhân nhận tin qua Zalo hoặc SMS — không cần tải app.</p></div>
+      </div>
+      <div class="reveal faq-item bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <button class="faq-toggle w-full flex items-center justify-between p-5 text-left"><span class="font-display font-semibold text-ink-900 pr-4">Có gửi được SMS không?</span><svg class="faq-chevron w-5 h-5 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="faq-answer px-5 pb-5"><p class="text-sm text-ink-500 leading-relaxed">Có. Hệ thống hỗ trợ cả Zalo OA và SMS. Nếu bệnh nhân không dùng Zalo, tin nhắn sẽ tự động gửi qua SMS. 95% người Việt đọc SMS trong vòng 3 phút.</p></div>
+      </div>
+      <div class="reveal faq-item bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <button class="faq-toggle w-full flex items-center justify-between p-5 text-left"><span class="font-display font-semibold text-ink-900 pr-4">Setup mất bao lâu?</span><svg class="faq-chevron w-5 h-5 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="faq-answer px-5 pb-5"><p class="text-sm text-ink-500 leading-relaxed">Chỉ 15 phút. Đội ngũ ClinicPing sẽ setup toàn bộ cho bạn — bạn chỉ cần cung cấp danh sách lịch hẹn và số điện thoại bệnh nhân. Không cần kiến thức kỹ thuật.</p></div>
+      </div>
+      <div class="reveal faq-item bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <button class="faq-toggle w-full flex items-center justify-between p-5 text-left"><span class="font-display font-semibold text-ink-900 pr-4">Phòng khám nhỏ có dùng được không?</span><svg class="faq-chevron w-5 h-5 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="faq-answer px-5 pb-5"><p class="text-sm text-ink-500 leading-relaxed">Hoàn toàn phù hợp. ClinicPing được thiết kế dành riêng cho phòng khám nhỏ 1–3 bác sĩ. Gói Starter chỉ 299K/tháng — rẻ hơn giá 1 lần khám bị no-show.</p></div>
+      </div>
+      <div class="reveal faq-item bg-white rounded-2xl border border-surface-200 overflow-hidden">
+        <button class="faq-toggle w-full flex items-center justify-between p-5 text-left"><span class="font-display font-semibold text-ink-900 pr-4">Dữ liệu bệnh nhân có an toàn không?</span><svg class="faq-chevron w-5 h-5 shrink-0 text-ink-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="faq-answer px-5 pb-5"><p class="text-sm text-ink-500 leading-relaxed">Có. Dữ liệu được lưu trên Google Sheets của chính phòng khám — bạn hoàn toàn kiểm soát. Chúng tôi không lưu trữ dữ liệu bệnh nhân trên server riêng.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FINAL CTA                                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28 relative overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-brand-600 to-brand-800"></div>
+  <div class="absolute inset-0 dot-pattern opacity-[0.06]"></div>
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-3xl"></div>
+  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+    <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">Bắt đầu giảm no-show<br/>ngay hôm nay</h2>
+    <p class="reveal mt-5 text-lg text-brand-200 max-w-lg mx-auto">Dùng thử miễn phí 14 ngày. Không cần thẻ tín dụng. Setup chỉ 15 phút.</p>
+    <div class="reveal mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a href="#contact" class="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white text-brand-600 font-bold text-base shadow-xl hover:shadow-2xl">
+        Dùng thử miễn phí 2 tuần
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </a>
+      <a href="tel:0912345678" class="btn-ghost w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl text-white font-semibold text-base border border-white/20 hover:bg-white/10">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+        Gọi ngay: 0912 345 678
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CONTACT                                        -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="py-20 sm:py-28 bg-surface-50" id="contact">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
+      <div>
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 mb-4"><span class="text-xs font-semibold text-brand-600">Liên hệ</span></div>
+        <h2 class="reveal font-display font-extrabold text-3xl sm:text-4xl text-ink-900 tracking-tight mb-4">Bắt đầu ngay hôm nay</h2>
+        <p class="reveal text-ink-500 mb-8 max-w-md">Điền thông tin bên dưới hoặc liên hệ trực tiếp — chúng tôi sẽ setup cho bạn trong 15 phút.</p>
+        <div class="space-y-5 stagger">
+          <div class="reveal flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg></div>
+            <div><div class="text-sm font-semibold text-ink-800">Điện thoại / Zalo</div><a href="tel:0912345678" class="text-sm text-brand-600 hover:underline">0912 345 678</a></div>
+          </div>
+          <div class="reveal flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg></div>
+            <div><div class="text-sm font-semibold text-ink-800">Email</div><a href="mailto:hello@clinicping.vn" class="text-sm text-brand-600 hover:underline">hello@clinicping.vn</a></div>
+          </div>
+          <div class="reveal flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-brand-500" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+            <div><div class="text-sm font-semibold text-ink-800">Facebook</div><a href="#" class="text-sm text-brand-600 hover:underline">facebook.com/clinicping</a></div>
+          </div>
+        </div>
+      </div>
+      <!-- Form -->
+      <div class="reveal">
+        <div class="bg-white rounded-2xl border border-surface-200 p-6 sm:p-8 shadow-sm">
+          <h3 class="font-display font-bold text-lg text-ink-900 mb-1">Đăng ký dùng thử miễn phí</h3>
+          <p class="text-sm text-ink-400 mb-6">Chúng tôi sẽ liên hệ trong vòng 2 giờ</p>
+          <div class="space-y-4" id="contactForm">
+            <div><label class="block text-sm font-medium text-ink-700 mb-1.5">Họ và tên</label><input type="text" id="name" placeholder="Nguyễn Văn A" class="w-full px-4 py-3 rounded-xl border border-surface-200 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"/></div>
+            <div><label class="block text-sm font-medium text-ink-700 mb-1.5">Số điện thoại</label><input type="tel" id="phone" placeholder="0912 345 678" class="w-full px-4 py-3 rounded-xl border border-surface-200 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"/></div>
+            <div><label class="block text-sm font-medium text-ink-700 mb-1.5">Tên phòng khám</label><input type="text" id="clinic" placeholder="Nha khoa ABC" class="w-full px-4 py-3 rounded-xl border border-surface-200 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all"/></div>
+            <div><label class="block text-sm font-medium text-ink-700 mb-1.5">Lời nhắn <span class="text-ink-300 font-normal">(tuỳ chọn)</span></label><textarea id="message" rows="3" placeholder="Ví dụ: Tôi có khoảng 200 lịch/tháng..." class="w-full px-4 py-3 rounded-xl border border-surface-200 text-sm text-ink-800 placeholder:text-ink-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition-all resize-none"></textarea></div>
+            <button onclick="handleSubmit()" class="btn-primary w-full py-3.5 rounded-xl bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-500/20">Gửi đăng ký dùng thử</button>
+            <p class="text-xs text-ink-300 text-center">Miễn phí 14 ngày. Không ràng buộc.</p>
+          </div>
+          <div id="formSuccess" class="hidden text-center py-8">
+            <div class="w-16 h-16 mx-auto rounded-full bg-accent-100 flex items-center justify-center mb-4"><svg class="w-8 h-8 text-accent-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></div>
+            <h3 class="font-display font-bold text-xl text-ink-900 mb-2">Đã nhận đăng ký!</h3>
+            <p class="text-sm text-ink-500">Chúng tôi sẽ liên hệ bạn qua Zalo/điện thoại trong vòng 2 giờ.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FOOTER                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<footer class="py-10 border-t border-surface-200 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a href="#" class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
+        <span class="font-display font-bold text-ink-900">Clinic<span class="text-brand-500">Ping</span></span>
+      </a>
+      <p class="text-sm text-ink-400">&copy; 2026 ClinicPing. Giảm no-show, tăng doanh thu cho phòng khám Việt Nam.</p>
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-ink-400 hover:text-brand-500 transition-colors"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="mailto:hello@clinicping.vn" class="text-ink-400 hover:text-brand-500 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- JS                                             -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+  // Sticky nav
+  const navbar=document.getElementById('navbar');
+  window.addEventListener('scroll',()=>{navbar.classList.toggle('nav-scrolled',window.scrollY>20)});
+  // Mobile menu
+  const mt=document.getElementById('mobile-toggle'),mm=document.getElementById('mobile-menu');
+  mt.addEventListener('click',()=>mm.classList.toggle('open'));
+  mm.querySelectorAll('a').forEach(l=>l.addEventListener('click',()=>mm.classList.remove('open')));
+  // Scroll reveal
+  const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('visible')})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  // FAQ accordion
+  document.querySelectorAll('.faq-toggle').forEach(b=>{b.addEventListener('click',()=>{const i=b.closest('.faq-item'),o=i.classList.contains('open');document.querySelectorAll('.faq-item').forEach(x=>x.classList.remove('open'));if(!o)i.classList.add('open')})});
+  // Form
+  function handleSubmit(){const n=document.getElementById('name').value.trim(),p=document.getElementById('phone').value.trim();if(!n||!p){if(!n)document.getElementById('name').style.borderColor='#EF4444';if(!p)document.getElementById('phone').style.borderColor='#EF4444';setTimeout(()=>{document.getElementById('name').style.borderColor='';document.getElementById('phone').style.borderColor=''},2000);return}document.getElementById('contactForm').classList.add('hidden');document.getElementById('formSuccess').classList.remove('hidden');console.log('Submitted:',{name:n,phone:p,clinic:document.getElementById('clinic').value.trim(),message:document.getElementById('message').value.trim()})}
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){window.scrollTo({top:t.getBoundingClientRect().top+window.pageYOffset-80,behavior:'smooth'})}})});
+</script>
+<script src="chatbot.js"></script>
+</body>
+</html>
