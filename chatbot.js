@@ -71,8 +71,14 @@
         </button>
       </div>`;
 
+    // ── Tooltip ──
+    const tooltip = document.createElement("div");
+    tooltip.id = "cp-tooltip";
+    tooltip.textContent = "👋 Bạn cần tư vấn? / Need help?";
+
     document.body.appendChild(trigger);
     document.body.appendChild(win);
+    document.body.appendChild(tooltip);
   }
 
   // ── Conversation history sent to the backend ─────────────
@@ -229,6 +235,35 @@
     }
   }
 
+  // ── Tooltip ───────────────────────────────────────────────
+  function initTooltip() {
+    // Never show again once the user has opened the chat.
+    if (localStorage.getItem("cp_chat_opened")) return;
+
+    const tooltip = document.getElementById("cp-tooltip");
+    if (!tooltip) return;
+
+    let autoHideTimer;
+
+    const hideTooltip = function () {
+      clearTimeout(autoHideTimer);
+      tooltip.style.display = "none";
+    };
+
+    // Appear after 3 s.
+    setTimeout(function () {
+      tooltip.classList.add("cp-tooltip-show");
+      // The CSS animation runs for 6 s (in + visible + out).
+      // Remove from view after it completes.
+      autoHideTimer = setTimeout(function () {
+        tooltip.style.display = "none";
+      }, 6000);
+    }, 3000);
+
+    // Expose so openChat() can dismiss it immediately.
+    window._cpHideTooltip = hideTooltip;
+  }
+
   // ── Toggle open/close ─────────────────────────────────────
   let isOpen = false;
   let greeted = false;
@@ -241,6 +276,10 @@
     trigger.setAttribute("aria-label", "Close chat");
     isOpen = true;
     setBadge(false);
+
+    // Dismiss tooltip and prevent it from ever showing again.
+    localStorage.setItem("cp_chat_opened", "1");
+    if (typeof window._cpHideTooltip === "function") window._cpHideTooltip();
 
     // Show greeting only once.
     if (!greeted) {
@@ -295,6 +334,7 @@
   function init() {
     buildUI();
     bindEvents();
+    initTooltip();
   }
 
   // Run after the DOM is ready.

@@ -309,6 +309,55 @@
   fill: #fff;
 }
 
+/* ── Tooltip popup ─────────────────────────────────────────── */
+#cp-tooltip {
+  position: fixed;
+  bottom: 100px;
+  right: 28px;
+  z-index: var(--cp-z);
+  background: #2563EB;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, .35);
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+}
+
+/* Downward-pointing tail toward the chat button */
+#cp-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #2563EB;
+}
+
+#cp-tooltip.cp-tooltip-show {
+  display: block;
+  animation: cp-tooltip-in .4s ease forwards, cp-tooltip-out .4s ease 5.6s forwards;
+}
+
+@keyframes cp-tooltip-in {
+  0%   { opacity: 0; transform: translateY(10px); }
+  60%  { opacity: 1; transform: translateY(-5px); }
+  100% { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes cp-tooltip-out {
+  0%   { opacity: 1; transform: translateY(0);   }
+  100% { opacity: 0; transform: translateY(4px); }
+}
+
 /* ── Responsive: smaller screens ──────────────────────────── */
 @media (max-width: 420px) {
   #cp-window {
@@ -318,5 +367,6 @@
     max-height: 75vh;
     border-radius: var(--cp-radius) var(--cp-radius) 0 0;
   }
-  #cp-trigger { right: 16px; bottom: 16px; }
+  #cp-trigger  { right: 16px; bottom: 16px; }
+  #cp-tooltip  { right: 16px; bottom: 88px; }
 }
