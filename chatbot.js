@@ -9,7 +9,7 @@
 
   // ── Config ────────────────────────────────────────────────
   // Change this if your backend runs on a different port/host.
-  const API_URL = "http://localhost:3001/api/chat";
+  const API_URL = "https://clinicping-production.up.railway.app/api/chat";
 
   // Greeting shown when the chat window first opens.
   const GREETING =
