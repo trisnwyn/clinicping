@@ -16,7 +16,7 @@ dotenv.config();   // loads GROQ_API_KEY from .env
 // ── Config ─────────────────────────────────────────────────
 const PORT         = process.env.PORT || 3001;
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL        = "llama3-8b-8192";   // fast + cheap
+const MODEL        = "llama-3.1-8b-instant";   // fast + cheap
 
 // ── System prompt ───────────────────────────────────────────
 // This is the "personality" of the bot. It is sent with every
